@@ -57,4 +57,35 @@ public class Dao {
 		}		
 		return asiakkaat;
 	}
+	
+	public ArrayList<Asiakas> listaaKaikki(String hakusana){
+		ArrayList<Asiakas> asiakkaat = new ArrayList<Asiakas>();
+		sql = "SELECT * FROM asiakkaat WHERE etunimi like ? or sukunimi like ?";       
+		try {
+			con=yhdista();
+			if(con!=null){ //jos yhteys onnistui
+				stmtPrep = con.prepareStatement(sql);
+				stmtPrep = con.prepareStatement(sql);
+				stmtPrep.setString(1, "%" + hakusana + "%");
+				stmtPrep.setString(2, "%" + hakusana + "%");   
+        		rs = stmtPrep.executeQuery();   
+				if(rs!=null){ //jos kysely onnistui
+					//con.close();					
+					while(rs.next()){
+						Asiakas asiakas = new Asiakas();
+						asiakas.setAsiakas_id(rs.getInt(1));
+						asiakas.setEtunimi(rs.getString(2));
+						asiakas.setSukunimi(rs.getString(3));	
+						asiakas.setPuhelin(rs.getString(4));	
+						asiakas.setSposti(rs.getString(5));	
+						asiakkaat.add(asiakas);
+					}					
+				}				
+			}	
+			con.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}		
+		return asiakkaat;
+	}
 }

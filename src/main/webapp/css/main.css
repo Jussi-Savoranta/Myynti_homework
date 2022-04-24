@@ -10,8 +10,6 @@
 }
 
 #listaus tr:nth-child(even){background-color: #f2f2f2;}
-#haku tr:nth-child(even){background-color: #f2f2f2;}
-
 #listaus tr:hover {background-color: #ddd;}
 
 #listaus th {
@@ -20,4 +18,8 @@
   text-align: left;
   background-color: #04AA6D;
   color: white;
+}
+
+.oikealle th{
+	text-align: right;
 }

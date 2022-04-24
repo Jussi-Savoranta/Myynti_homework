@@ -7,22 +7,24 @@
 <meta charset="ISO-8859-1">
 <link rel="stylesheet" type="text/css" href="css/main.css">
 <title>Insert title here</title>
+<style>
+
+</style>
 </head>
 <body>
-
 <table id="listaus">
 	<thead>	
-	<tr>	
-	<th id="hSana">Hakusana:</th>	
-	<th><input type="text" name="enimi"></th>	
-	<th><input type="submit" value="Hae"></th>	
-	</tr>	
-		<tr id= haku>
-			<th>Etunimi</th>
-			<th>Sukunimi</th>
-			<th>Puhelin</th>
-			<th>Sposti</th>							
-		</tr>
+		<tr>
+			<th class="oikealle">Hakusana:</th>
+			<th colspan="2"><input type="text" id="hakusana"></th>
+			<th><input type="button" value="hae" id="hakunappi"></th>
+		</tr>	
+	<tr>
+		<th>Etunimi</th>
+		<th>Sukunimi</th>
+		<th>Puhelin</th>
+		<th>Sposti</th>							
+	</tr>
 	</thead>
 	<tbody>
 	</tbody>
@@ -30,8 +32,25 @@
 
 <script>
 $(document).ready(function(){
+	haeAsiakkaat();
+	$("#hakunappi").click(function(){		
+		console.log($("#hakusana").val());
+		haeAsiakkaat();
+	});
+	//enterin kuuntelu
+	$(document.body).on("keydown", function(event){
+		  if(event.which==13){
+			  haeAsiakkaat();
+		  }
+	});
+	//kursori hakulaatikkoon
+	$("#hakusana").focus();
+});
+
+function haeAsiakkaat() {
+	$("#listaus tbody").empty();
 	//Funktio palauttaa tiedot json-objektina
-	$.ajax({url:"asiakkaat", type:"GET", dataType:"json", success:function(result){
+	$.ajax({url:"asiakkaat/" + $("#hakusana").val(), type:"GET", dataType:"json", success:function(result){
 		console.log(result);
 		
 		$.each(result.asiakkaat, function(i, field){  
@@ -45,7 +64,7 @@ $(document).ready(function(){
         	$("#listaus tbody").append(htmlStr);
         });
 	}});
-});
+}
 </script>
 
 </body>
