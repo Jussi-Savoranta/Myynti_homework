@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import model.Asiakas;
@@ -87,5 +88,42 @@ public class Dao {
 			e.printStackTrace();
 		}		
 		return asiakkaat;
+	}
+	
+	public boolean lisaaAsiakas(Asiakas asiakas) {
+		boolean b = true;
+		sql = "INSERT INTO asiakkaat VALUES(?,?,?,?,?)";
+		try {
+			con = yhdista();
+			stmtPrep = con.prepareStatement(sql);
+			stmtPrep.setString(2, asiakas.getEtunimi());
+			stmtPrep.setString(3, asiakas.getSukunimi());
+			stmtPrep.setString(4, asiakas.getPuhelin());
+			stmtPrep.setString(5, asiakas.getSposti());
+			stmtPrep.executeUpdate();
+			con.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			b = false;
+		}
+		return b;
+	}
+	
+	public boolean poistaAsiakas(String asiakas_id) {
+		boolean b = true;
+		sql = "DELETE FROM  asiakkaat WHERE asiakas_id=?";
+		try {
+			con = yhdista();
+			stmtPrep = con.prepareStatement(sql);
+			stmtPrep.setString(1, asiakas_id);
+			stmtPrep.executeUpdate();
+			con.close();
+			
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			b = false;
+		}
+		return b;
 	}
 }

@@ -3,7 +3,6 @@ package control;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -45,6 +44,21 @@ public class Asiakkaat extends HttpServlet {
 	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		System.out.println("Asiakkaat.doPost()");
+		JSONObject jsonObj = new JsonStrToObj().convert(request);
+		Asiakas asiakas = new Asiakas();
+		asiakas.setEtunimi(jsonObj.getString("enimi"));
+		asiakas.setSukunimi(jsonObj.getString("snimi"));
+		asiakas.setPuhelin(jsonObj.getString("puhelin"));
+		asiakas.setSposti(jsonObj.getString("sposti"));
+		response.setContentType("application/json");
+		PrintWriter out = response.getWriter();
+		Dao dao = new Dao();
+		if(dao.lisaaAsiakas(asiakas)) {
+			out.println("{\"response\":1}");
+		} else {
+			out.println("{\"response\":0}");
+		}
+
 	}
 
 
@@ -55,6 +69,24 @@ public class Asiakkaat extends HttpServlet {
 
 	protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		System.out.println("Asiakkaat.doDelete()");
+		//haetaan requestin path
+		String pathInfo = request.getPathInfo(); 
+		System.out.println(pathInfo);
+		//poistetaan path'sta /-viiva, jolloin j‰ljelle j‰‰ vain asiakas_id
+		String poistettavaAsiakas_id = pathInfo.replace("/", "");
+		
+		Dao dao = new Dao();
+		response.setContentType("application/json");
+		PrintWriter out = response.getWriter();
+		
+		//poistaAsiakas palauttaa booleanin
+		if(dao.poistaAsiakas(poistettavaAsiakas_id)) {
+			//poistaminen onnistui
+			out.println("{\"response\":1}");
+		} else {
+			//poistaminen ep‰onnistui
+			out.println("{\"response\":0}");
+		}
 	}
 
 }
