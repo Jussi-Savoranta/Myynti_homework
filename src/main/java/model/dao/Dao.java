@@ -126,4 +126,54 @@ public class Dao {
 		}
 		return b;
 	}
+	public Asiakas etsiAsiakas(String asiakas_id) {
+		Asiakas asiakas = null;
+		sql = "SELECT * FROM asiakkaat WHERE asiakas_id=?";
+		try {
+			con = yhdista();
+			if(con != null) { 
+				stmtPrep = con.prepareStatement(sql);
+				stmtPrep.setString(1, asiakas_id);
+				rs = stmtPrep.executeQuery();
+				if(rs.isBeforeFirst()) {//jos kysely tuotti dataa
+					rs.next();
+					asiakas = new Asiakas();
+					asiakas.setEtunimi(rs.getString(2));
+					asiakas.setSukunimi(rs.getString(3));
+					asiakas.setPuhelin(rs.getString(4));
+					asiakas.setSposti(rs.getString(5));
+					
+				}
+			}
+			con.close();
+			System.out.println("Dao: "+asiakas.toString());
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		return asiakas;
+	}
+	public boolean muutaAsiakas(Asiakas asiakas) {
+		System.out.println("Dao.java: " + asiakas.toString());
+		boolean b = true;
+		sql = "UPDATE asiakkaat SET etunimi=?, sukunimi=?, puhelin=?, sposti=? WHERE asiakas_id=?";
+		try {
+			con = yhdista();
+			stmtPrep = con.prepareStatement(sql);
+			stmtPrep.setString(1, asiakas.getEtunimi());
+			stmtPrep.setString(2, asiakas.getSukunimi());
+			stmtPrep.setString(3, asiakas.getPuhelin());
+			stmtPrep.setString(4, asiakas.getSposti());
+			System.out.println("1Dao.java: " + stmtPrep.toString());
+			stmtPrep.executeUpdate();
+			System.out.println("2Dao.java: " + stmtPrep.toString());
+			con.close();
+			
+		} catch(Exception e) {
+			b=false;
+			e.printStackTrace();
+		}
+		
+		return b;
+	}
 }

@@ -4,6 +4,7 @@
 <html>
 <head>
 <meta charset="ISO-8859-1">
+<script src="scripts/main.js"></script>
 <script
 	src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script
@@ -87,12 +88,15 @@
 				lisaaTiedot();
 			}
 		});
+		// kursori etunimi-kenttään sivun latauksessa
+		$("#etunimi").focus();
 	});
 	// tietojen lisääminen
 	function lisaaTiedot() {
 		console.log("toimii")
 		//$("#ilmo").html("Asiakkaan lisääminen epäonnistui.");
 		var formJsonStr = formDataJsonStr($("#tiedot").serializeArray()); //muutetaan lomakkeen tiedot json-stringiksi
+		console.log(formJsonStr);
 		$.ajax({
 			url : "asiakkaat",
 			data : formJsonStr,
@@ -107,5 +111,7 @@
 				}
 			  }});	
 			}
+	
+	
 </script>
 </html>
