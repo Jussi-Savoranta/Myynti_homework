@@ -81,6 +81,7 @@ public class Asiakkaat extends HttpServlet {
 		response.setContentType("application/json");
 		PrintWriter out = response.getWriter();
 		Dao dao = new Dao();
+		System.out.println("Asiakkaat.java:" + asiakas.toString());
 		if(dao.lisaaAsiakas(asiakas)) {
 			out.println("{\"response\":1}");
 		} else {

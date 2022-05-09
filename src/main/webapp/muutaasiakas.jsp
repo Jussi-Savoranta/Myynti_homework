@@ -1,23 +1,21 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-    pageEncoding="ISO-8859-1"%>
+	pageEncoding="ISO-8859-1"%>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="ISO-8859-1">
 <script src="scripts/main.js"></script>
-<script
-	src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script
-	src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.15.0/jquery.validate.min.js"></script>
 <link rel="stylesheet" type="text/css" href="css/main.css">
-<title>Insert title here</title>
+<title>Asiakkaan muutos</title>
 </head>
-<body>
- <form id="tiedot">
+<body onkeydown="tutkiKey(event)">
+	<form id="tiedot">
 		<table>
 			<thead>
 				<tr>
-					<th colspan="5" class="oikealle"><span id="takaisin">Takaisin asiakkaisiin</span></th>
+					<th colspan="3" id="ilmo"></th>
+					<th colspan="2" class="oikealle"><a href="listaaasiakkaat.jsp"
+						id="takaisin">Takaisin listaukseen</a></th>
 				</tr>
 				<tr>
 					<th>Etunimi</th>
@@ -33,98 +31,95 @@
 					<td><input type="text" name="sukunimi" id="sukunimi"></td>
 					<td><input type="text" name="puhelin" id="puhelin"></td>
 					<td><input type="text" name="sposti" id="sposti"></td>
-					<td><input type="submit" id="tallenna" value="Hyväksy"></td>
+					<td><input type="button" id="tallenna" value="Hyväksy"
+						onclick="vieTiedot()"></td>
 				</tr>
 			</tbody>
-
 		</table>
+		<input type="hidden" name="vanharekno" id="vanharekno">
 	</form>
 	<span id="ilmo"></span>
 </body>
 <script>
-$(document).ready(function() {
-	$("#takaisin").click(function() {
-		document.location="listaaasiakkaat.jsp";
-	});
-	
-	var asiakas_id = requestURLParam("asiakas_id");
-	$.ajax({
-		url:"asiakkaat/haeyksi/" + asiakas_id, 
-		type:"GET", 
-		dataType:"json", 
-		success:function(result) {
-			$("#etunimi").val(result.etunimi);
-			$("#sukunimi").val(result.sukunimi);
-			$("#puhelin").val(result.puhelin);
-			$("#sposti").val(result.sposti);
-			console.log(result.etunimi);
-	}})
-	
-	$("#tiedot").validate({
-		rules : {
-			enimi : {
-				required : true
-			},
-			snimi : {
-				required : true
 
-			},
-			puhelin : {
-				required : true,
-				number : true,
-				minlength : 10,
-				maxlength : 15
-			},
-			sposti : {
-				required : true
-			}
-		},
-		messages : {
-			enimi : {
-				required : "Puuttuu"
+function tutkiKeyX(event){
+	if(event.keyCode==13){//Enter
+		vieTiedot();
+	}		
+}
 
-			},
-			snimi : {
-				required : "Puuttuu"
-			},
-			puhelin : {
-				required : "Puuttuu",
-				number : "Ei kelpaa",
-				minlength : "Liian lyhyt",
-				maxlength : "Liian pitkïä"
-			},
-			sposti : {
-				required : "Puuttuu"
-			}
-		},
-		submitHandler : function(form) {
-			paivitaTiedot();
-		}
-	});
-	// kursori etunimi-kenttään sivun latauksessa
-	$("#etunimi").focus();
-});
-// tietojen päivittäminen
-function paivitaTiedot() {
-	console.log("toimii")
-	//$("#ilmo").html("Asiakkaan lisääminen epäonnistui.");
-	var formJsonStr = formDataJsonStr($("#tiedot").serializeArray()); //muutetaan lomakkeen tiedot json-stringiksi
+var tutkiKey = (event) => {
+	if(event.keyCode==13){//Enter
+		vieTiedot();
+	}	
+}
+
+document.getElementById("etunimi").focus();//viedään kursori rekno-kenttään sivun latauksen yhteydessä
+
+//Haetaan muutettavan asiakkaan tiedot. Kutsutaan backin GET-metodia ja välitetään kutsun mukana muutettavan tiedon id
+//GET /asiakkaat/haeyksi/id
+var asiakas_id = requestURLParam("asiakas_id"); //Funktio löytyy scripts/main.js 
+fetch("asiakkaat/haeyksi/" + asiakas_id,{//Lähetetään kutsu backendiin
+      method: 'GET'	      
+    })
+.then( function (response) {//Odotetaan vastausta ja muutetaan JSON-vastausteksti objektiksi
+	return response.json()
+})
+.then( function (responseJson) {//Otetaan vastaan objekti responseJson-parametrissä	
+	console.log(responseJson);
+	document.getElementById("etunimi").value = responseJson.etunimi;		
+	document.getElementById("sukunimi").value = responseJson.sukunimi;	
+	document.getElementById("puhelin").value = responseJson.puhelin;	
+	document.getElementById("sposti").value = responseJson.sposti;	
+	//document.getElementById("vanharekno").value = responseJson.rekno;	
+});	
+
+//Funktio tietojen muuttamista varten. Kutsutaan backin PUT-metodia ja välitetään kutsun mukana muutetut tiedot json-stringinä.
+//PUT /asiakkaat/
+function vieTiedot(){	
+	var ilmo="";
+	var d = new Date();
+	if(document.getElementById("etunimi").value.length<3){
+		ilmo="Nimi ei kelpaa!";		
+	}else if(document.getElementById("sukunimi").value.length<2){
+		ilmo="Nimi ei kelpaa!";		
+	}else if(document.getElementById("sposti").value.length<1){
+		ilmo="Sposti ei kelpaa!";		
+	}else if(document.getElementById("puhelin").value*1!=document.getElementById("puhelin").value){
+		ilmo="Puhelinnumero ei ole luku!";		
+	}else if(document.getElementById("puhelin").value.length<1){
+		ilmo="Puhelinnumero ei kelpaa!";
+	}
+	if(ilmo!=""){
+		document.getElementById("ilmo").innerHTML=ilmo;
+		setTimeout(function(){ document.getElementById("ilmo").innerHTML=""; }, 3000);
+		return;
+	}
+	document.getElementById("etunimi").value=siivoa(document.getElementById("etunimi").value);
+	document.getElementById("sukunimi").value=siivoa(document.getElementById("sukunimi").value);
+	document.getElementById("puhelin").value=siivoa(document.getElementById("puhelin").value);
+	document.getElementById("sposti").value=siivoa(document.getElementById("sposti").value);	
+	
+	var formJsonStr=formDataToJSON(document.getElementById("tiedot")); //muutetaan lomakkeen tiedot json-stringiksi
 	console.log(formJsonStr);
-	$.ajax({
-		url : "asiakkaat",
-		data : formJsonStr,
-		type : "PUT",
-		dataType : "json",
-		success : function(result) { //result on joko {"response:1"} tai {"response:0"}       
-			if (result.response == 0) {
-				$("#ilmo").html("Asiakkaan päivittäminen epäonnistui.");
-			} else if (result.response == 1) {
-				$("#ilmo").html("Asiakkaan päivittäminen onnistui.");
-				$("#etunimi", "#sukunimi", "#puhelin", "#sposti").val("");
-			}
-		  }});	
-		}
-
+	//Lähetään muutetut tiedot backendiin
+	fetch("asiakkaat",{//Lähetetään kutsu backendiin
+	      method: 'PUT',
+	      body:formJsonStr
+	    })
+	.then( function (response) {//Odotetaan vastausta ja muutetaan JSON-vastaus objektiksi
+		return response.json();
+	})
+	.then( function (responseJson) {//Otetaan vastaan objekti responseJson-parametrissä	
+		var vastaus = responseJson.response;		
+		if(vastaus==0){
+			document.getElementById("ilmo").innerHTML= "Tietojen päivitys epäonnistui";
+        }else if(vastaus==1){	        	
+        	document.getElementById("ilmo").innerHTML= "Tietojen päivitys onnistui";			      	
+		}	
+		setTimeout(function(){ document.getElementById("ilmo").innerHTML=""; }, 5000);
+	});	
+	document.getElementById("tiedot").reset(); //tyhjennetään tiedot -lomake
+}
 </script>
-
 </html>
